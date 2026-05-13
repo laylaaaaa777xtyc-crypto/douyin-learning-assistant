@@ -1,6 +1,9 @@
 {
-  "buildCommand": "cd frontend && npm install && npm run build",
+  "buildCommand": "cd frontend && npm install && npx vite build",
   "outputDirectory": "frontend/dist",
+  "env": {
+    "VITE_FORCE_MOCK": "true"
+  },
   "rewrites": [
     { "source": "/(.*)", "destination": "/index.html" }
   ]
