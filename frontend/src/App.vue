@@ -1,14 +1,15 @@
 <script setup lang="ts">
-import { computed, onMounted, ref } from 'vue';
+import { computed, defineAsyncComponent, onMounted, ref } from 'vue';
 import TopBar from './components/TopBar.vue';
 import BottomNav from './components/BottomNav.vue';
 import VideoStage from './components/VideoStage.vue';
 import RightActionBar from './components/RightActionBar.vue';
-import AIOverlay from './components/AIOverlay.vue';
 import AIStatusBubble from './components/AIStatusBubble.vue';
 import DialogueBubble from './components/DialogueBubble.vue';
 import CharacterTabBar from './components/CharacterTabBar.vue';
-import MindmapOverlay from './components/MindmapOverlay.vue';
+
+const AIOverlay = defineAsyncComponent(() => import('./components/AIOverlay.vue'));
+const MindmapOverlay = defineAsyncComponent(() => import('./components/MindmapOverlay.vue'));
 import { CHARACTERS, type CharacterId } from './config/characters.config';
 import { useAnalyze } from './composables/useAnalyze';
 import { SAMPLE_VIDEOS } from './services/mockData';
@@ -17,6 +18,7 @@ const activeCharacterId = ref<CharacterId>('ghostie');
 const activeVideoIndex = ref(0);
 const showMindmap = ref(false);
 const showStatusBubble = ref(true);
+const cameraActive = ref(false);
 
 const activeVideo = computed(() => SAMPLE_VIDEOS[activeVideoIndex.value]);
 const activeCharacter = computed(
@@ -53,18 +55,30 @@ function openMindmap() {
 }
 
 function openReport() {
-  // 占位:未来对接日报视图
   console.log('open daily report');
+}
+
+function openCamera() {
+  cameraActive.value = true;
+}
+
+function closeCamera() {
+  cameraActive.value = false;
 }
 </script>
 
 <template>
   <div class="relative w-full h-full overflow-hidden bg-black select-none">
-    <VideoStage :video="activeVideo" @swipe-up="nextVideo" />
+    <VideoStage
+      :video="activeVideo"
+      :camera-active="cameraActive"
+      @swipe-up="nextVideo"
+      @camera-close="closeCamera"
+    />
 
     <AIOverlay :character="activeCharacter" />
 
-    <TopBar />
+    <TopBar @go-live="openCamera" />
 
     <AIStatusBubble
       v-if="showStatusBubble"

@@ -23,6 +23,7 @@ export interface CharacterConfig {
   tagline: string;
   catchphrase: string;
   theme: CharacterTheme;
+  videoSrc?: string;
   mesh: {
     kind: MeshKind;
     rotationSpeed: number;
@@ -47,6 +48,7 @@ export const CHARACTERS: CharacterConfig[] = [
       ring: 'ring-amber-300/60',
       bubbleBg: 'rgba(212, 163, 115, 0.18)'
     },
+    videoSrc: '/characters/scholar-cat.webm',
     mesh: { kind: 'book', rotationSpeed: 0.4, floatAmp: 0.08 }
   },
   {
@@ -79,6 +81,7 @@ export const CHARACTERS: CharacterConfig[] = [
       ring: 'ring-pink-300/60',
       bubbleBg: 'rgba(244, 164, 182, 0.22)'
     },
+    videoSrc: '/characters/spirit-deer.webm',
     mesh: { kind: 'torus', rotationSpeed: 0.5, floatAmp: 0.1 }
   },
   {
@@ -95,6 +98,7 @@ export const CHARACTERS: CharacterConfig[] = [
       ring: 'ring-orange-300/60',
       bubbleBg: 'rgba(231, 111, 81, 0.22)'
     },
+    videoSrc: '/characters/brave-dog.webm',
     mesh: { kind: 'octahedron', rotationSpeed: 1.0, floatAmp: 0.14 }
   },
   {

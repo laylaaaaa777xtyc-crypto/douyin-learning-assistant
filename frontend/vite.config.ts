@@ -11,5 +11,17 @@ export default defineConfig({
         changeOrigin: true
       }
     }
+  },
+  build: {
+    chunkSizeWarningLimit: 600,
+    rollupOptions: {
+      output: {
+        manualChunks(id) {
+          if (id.includes('node_modules/three')) return 'vendor-three';
+          if (id.includes('node_modules/mermaid') || id.includes('node_modules/d3') || id.includes('node_modules/dagre')) return 'vendor-mermaid';
+          if (id.includes('node_modules/vue') || id.includes('node_modules/@vue')) return 'vendor-vue';
+        }
+      }
+    }
   }
 });

@@ -5,6 +5,7 @@ import type { CharacterConfig, MeshKind } from '../config/characters.config';
 
 const props = defineProps<{ character: CharacterConfig }>();
 
+// ─── Three.js (mesh characters) ────────────────────────────────────────────
 const container = ref<HTMLDivElement | null>(null);
 let renderer: THREE.WebGLRenderer | null = null;
 let scene: THREE.Scene | null = null;
@@ -68,7 +69,7 @@ function setupCharacter(character: CharacterConfig) {
   scene.add(activeMesh);
 }
 
-function init() {
+function initThreeJS() {
   if (!container.value) return;
 
   const w = container.value.clientWidth;
@@ -118,33 +119,89 @@ function init() {
   resizeObserver.observe(container.value);
 }
 
-onMounted(init);
-
-watch(
-  () => props.character.id,
-  () => setupCharacter(props.character)
-);
-
-onBeforeUnmount(() => {
+function destroyThreeJS() {
   cancelAnimationFrame(frameId);
   resizeObserver?.disconnect();
   if (renderer) {
     renderer.dispose();
     renderer.domElement.remove();
+    renderer = null;
   }
+  scene = null;
+  camera = null;
+  activeMesh = null;
+}
+
+onMounted(() => {
+  if (!props.character.videoSrc) initThreeJS();
 });
+
+watch(
+  () => props.character.id,
+  (newId, oldId) => {
+    const hadVideo = !!props.character.videoSrc;
+    const hasVideo = !!props.character.videoSrc;
+    if (!hasVideo && !hadVideo) {
+      setupCharacter(props.character);
+    } else if (!hasVideo && hadVideo) {
+      initThreeJS();
+    } else if (hasVideo && !hadVideo) {
+      destroyThreeJS();
+    }
+  }
+);
+
+onBeforeUnmount(destroyThreeJS);
 </script>
 
 <template>
   <div class="absolute left-1/2 top-[36%] -translate-x-1/2 -translate-y-1/2 z-10 pointer-events-none">
-    <div
-      class="relative w-48 h-48 rounded-full overflow-hidden"
-      :style="{
-        boxShadow: `0 0 90px 10px ${character.theme.glow}`,
-        background: 'radial-gradient(circle at center, rgba(255,255,255,0.12) 0%, rgba(0,0,0,0) 70%)'
-      }"
-    >
-      <div ref="container" class="w-full h-full" />
-    </div>
+
+    <!-- Video character (transparent WebM) -->
+    <template v-if="character.videoSrc">
+      <div
+        class="relative flex items-center justify-center"
+        style="width: 220px;"
+      >
+        <!-- glow halo behind character -->
+        <div
+          class="absolute inset-0 rounded-full blur-2xl opacity-40"
+          :style="{ background: character.theme.glow }"
+        />
+        <video
+          :src="character.videoSrc"
+          class="relative w-full h-auto animate-float drop-shadow-xl"
+          autoplay
+          loop
+          muted
+          playsinline
+          style="mix-blend-mode: normal;"
+        />
+      </div>
+    </template>
+
+    <!-- Three.js mesh character -->
+    <template v-else>
+      <div
+        class="relative w-48 h-48 rounded-full overflow-hidden"
+        :style="{
+          boxShadow: `0 0 90px 10px ${character.theme.glow}`,
+          background: 'radial-gradient(circle at center, rgba(255,255,255,0.12) 0%, rgba(0,0,0,0) 70%)'
+        }"
+      >
+        <div ref="container" class="w-full h-full" />
+      </div>
+    </template>
+
   </div>
 </template>
+
+<style scoped>
+@keyframes float {
+  0%, 100% { transform: translateY(0px); }
+  50%       { transform: translateY(-12px); }
+}
+.animate-float {
+  animation: float 3s ease-in-out infinite;
+}
+</style>

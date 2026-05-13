@@ -4,6 +4,8 @@ import { ref } from 'vue';
 type TabId = '关注' | '推荐' | '成都';
 const active = ref<TabId>('推荐');
 const hasFollowNotif = ref(true);
+
+const emit = defineEmits<{ (e: 'go-live'): void }>();
 </script>
 
 <template>
@@ -33,7 +35,7 @@ const hasFollowNotif = ref(true);
     <!-- 导航行 -->
     <div class="flex items-center justify-between px-4 mt-2 pointer-events-auto">
       <!-- 直播按钮 (左) -->
-      <button class="flex items-center gap-1 text-white/90 hover:text-white">
+      <button class="flex items-center gap-1 text-white/90 hover:text-white" @click="emit('go-live')">
         <span
           class="inline-flex items-center gap-0.5 px-1.5 py-0.5 rounded text-[10px] font-bold tracking-widest"
           style="background: linear-gradient(135deg, #ff4f4f, #ff2d55); color: #fff; letter-spacing: 0.05em;"
