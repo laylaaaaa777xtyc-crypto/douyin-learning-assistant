@@ -13,7 +13,7 @@ const favorited = ref(false);
 </script>
 
 <template>
-  <div class="absolute right-2.5 bottom-44 z-20 flex flex-col items-center gap-4 text-white">
+  <div class="absolute right-2.5 bottom-36 z-20 flex flex-col items-center gap-4 text-white">
     <button
       @click="liked = !liked"
       class="flex flex-col items-center group"

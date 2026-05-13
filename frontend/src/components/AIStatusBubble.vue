@@ -27,7 +27,7 @@ const greeting = computed(() => {
 </script>
 
 <template>
-  <div class="absolute top-24 right-3 z-30 max-w-[58%] pointer-events-auto">
+  <div class="absolute top-24 right-16 z-30 max-w-[56%] pointer-events-auto">
     <div
       class="relative rounded-2xl rounded-br-sm px-3.5 py-2.5 backdrop-blur-md text-white shadow-lg"
       :style="{

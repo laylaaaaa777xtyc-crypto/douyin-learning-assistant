@@ -19,7 +19,7 @@ const emit = defineEmits<{
 const statusLabel = computed(() => {
   if (props.state.status === 'loading') return '解读中';
   if (props.state.status === 'error') return '降级模式';
-  return '已解读';
+  return '解说中';
 });
 
 const mainExplanation = computed(() => {
@@ -28,17 +28,20 @@ const mainExplanation = computed(() => {
   return exps[0]?.explanation ?? '';
 });
 
+// 💡 知识弹幕
 const knowledgeBullet = computed(() => {
   if (props.state.status !== 'success' || !props.state.data) return '';
   return props.state.data.reconstruction.logicTree.supportPoints[0] ?? '';
 });
 
-const simpleVersion = computed(() => {
+// 🔗 联想方向
+const associationDir = computed(() => {
   if (props.state.status !== 'success' || !props.state.data) return '';
   return props.state.data.reconstruction.logicTree.mainArgument;
 });
 
-const deepQuestion = computed(() => {
+// 🌏 延伸思考
+const extendedThinking = computed(() => {
   if (props.state.status !== 'success' || !props.state.data) return '';
   return props.state.data.reconstruction.logicTree.potentialFlaws[0] ?? '';
 });
@@ -52,37 +55,40 @@ const canAct = computed(() => props.state.status === 'success');
 </script>
 
 <template>
-  <div class="absolute left-3 right-24 bottom-36 z-20 pointer-events-auto">
+  <div class="absolute left-3 right-20 bottom-40 z-20 pointer-events-auto">
     <div
-      class="relative rounded-2xl rounded-tl-sm p-3 backdrop-blur-md"
+      class="relative rounded-2xl p-3.5 backdrop-blur-md"
       :style="{
-        background: 'rgba(20, 22, 38, 0.78)',
-        border: `1px solid ${character.theme.primary}66`,
-        boxShadow: `0 10px 28px ${character.theme.glow}`
+        background: 'rgba(12, 14, 28, 0.82)',
+        border: `1px solid ${character.theme.primary}55`,
+        boxShadow: `0 8px 32px ${character.theme.glow}, 0 2px 8px rgba(0,0,0,0.5)`
       }"
     >
       <!-- 解读标题行 -->
-      <div class="flex items-center gap-2 mb-2">
+      <div class="flex items-center gap-2 mb-2.5">
         <span
-          class="inline-flex w-6 h-6 items-center justify-center rounded-full text-base shrink-0"
+          class="inline-flex w-6 h-6 items-center justify-center rounded-full text-sm shrink-0"
           :style="{ background: character.theme.primary }"
-        >
-          {{ character.emoji }}
+        >{{ character.emoji }}</span>
+        <span class="text-[13px] font-bold" :style="{ color: character.theme.text }">
+          {{ character.name }}
         </span>
-        <div class="text-[12px] font-semibold flex items-center gap-1" :style="{ color: character.theme.text }">
-          <span>{{ character.name }}</span>
-          <span class="text-white/40">·</span>
-          <span class="text-white/85">{{ statusLabel }}</span>
-        </div>
+        <span class="text-white/40 text-[12px]">{{ statusLabel }}</span>
         <span
           v-if="state.status === 'loading'"
-          class="ml-auto inline-block w-1.5 h-1.5 rounded-full bg-white/80 animate-pulse"
+          class="ml-auto inline-block w-1.5 h-1.5 rounded-full animate-pulse"
+          :style="{ background: character.theme.primary }"
+        />
+        <span
+          v-else-if="state.status === 'success'"
+          class="ml-auto inline-block w-1.5 h-1.5 rounded-full"
+          :style="{ background: character.theme.primary }"
         />
       </div>
 
       <!-- Loading -->
-      <div v-if="state.status === 'loading'" class="text-[12px] text-white/70 leading-relaxed">
-        {{ character.catchphrase }}
+      <div v-if="state.status === 'loading'" class="text-[12px] text-white/70 leading-relaxed italic">
+        "{{ character.catchphrase }}"
       </div>
 
       <!-- Error -->
@@ -90,39 +96,45 @@ const canAct = computed(() => props.state.status === 'success');
         后端没连上，正在用本地 mock 数据。
       </div>
 
-      <!-- Success: info panel layout -->
-      <div v-else class="space-y-1.5">
-        <!-- explanation text -->
-        <p v-if="mainExplanation" class="text-[12px] text-white/85 leading-snug">
-          {{ mainExplanation }}
+      <!-- Success -->
+      <div v-else class="space-y-2">
+        <!-- 主解释引用 -->
+        <p v-if="mainExplanation" class="text-[12px] text-white/90 leading-snug italic px-1">
+          "{{ mainExplanation }}"
         </p>
 
-        <!-- knowledge bullet (★) -->
-        <div v-if="knowledgeBullet" class="flex items-start gap-1.5">
-          <span class="shrink-0 mt-[1px] text-[11px]" :style="{ color: character.theme.primary }">★</span>
-          <span class="text-[12px] text-white/90 leading-snug">{{ knowledgeBullet }}</span>
+        <!-- 💡 知识弹幕 -->
+        <div v-if="knowledgeBullet" class="space-y-0.5">
+          <div class="flex items-center gap-1 text-[10px] font-semibold tracking-wide" :style="{ color: character.theme.primary }">
+            <span>💡</span><span>知识弹幕</span>
+          </div>
+          <p class="text-[12px] text-white/85 leading-snug pl-1">{{ knowledgeBullet }}</p>
         </div>
 
-        <!-- dimensionality reduction (🧠 说人话) -->
-        <div v-if="simpleVersion" class="flex items-start gap-1.5">
-          <span class="shrink-0 text-[13px] leading-snug">🧠</span>
-          <span class="text-[12px] text-white/90 leading-snug">{{ simpleVersion }}</span>
+        <!-- 🔗 联想方向 -->
+        <div v-if="associationDir" class="space-y-0.5">
+          <div class="flex items-center gap-1 text-[10px] font-semibold tracking-wide" :style="{ color: character.theme.primary }">
+            <span>🔗</span><span>联想方向</span>
+          </div>
+          <p class="text-[12px] text-white/85 leading-snug pl-1">{{ associationDir }}</p>
         </div>
 
-        <!-- extended thinking (💡 deeper question) -->
-        <div v-if="deepQuestion" class="flex items-start gap-1.5">
-          <span class="shrink-0 text-[13px] leading-snug">💡</span>
-          <span class="text-[12px] text-white/70 leading-snug">{{ deepQuestion }}</span>
+        <!-- 🌏 延伸思考 -->
+        <div v-if="extendedThinking" class="space-y-0.5">
+          <div class="flex items-center gap-1 text-[10px] font-semibold tracking-wide" :style="{ color: character.theme.primary }">
+            <span>🌏</span><span>延伸思考</span>
+          </div>
+          <p class="text-[12px] text-white/65 leading-snug pl-1">{{ extendedThinking }}</p>
         </div>
 
-        <!-- source info -->
+        <!-- video source info -->
         <div v-if="video" class="flex items-center gap-1.5 pt-0.5 flex-wrap">
-          <span class="text-[11px] text-white/50 shrink-0">{{ video.author }}</span>
+          <span class="text-[11px] text-white/45 shrink-0">{{ video.author }}</span>
           <span
             v-for="tag in sourceTags"
             :key="tag"
             class="text-[10px] px-1.5 py-0.5 rounded-full"
-            :style="{ background: `${character.theme.primary}33`, color: character.theme.text }"
+            :style="{ background: `${character.theme.primary}2a`, color: character.theme.text }"
           >{{ tag }}</span>
         </div>
       </div>
@@ -132,22 +144,20 @@ const canAct = computed(() => props.state.status === 'success');
         <button
           @click="emit('open-mindmap')"
           :disabled="!canAct"
-          class="flex items-center gap-1 px-3 py-1.5 rounded-full text-[12px] font-semibold transition disabled:opacity-40"
-          style="background: linear-gradient(90deg, #a07aff, #8d5cff); color: #fff;"
+          class="flex items-center gap-1.5 px-3 py-1.5 rounded-full text-[12px] font-semibold transition-opacity disabled:opacity-40"
+          style="background: linear-gradient(90deg, #0fcfb0, #00b4d8); color: #fff;"
         >
           <svg viewBox="0 0 24 24" class="w-3.5 h-3.5" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round">
-            <circle cx="6" cy="12" r="2" />
-            <circle cx="18" cy="6" r="2" />
-            <circle cx="18" cy="18" r="2" />
-            <path d="M8 12h6m-6-1l8-4m-8 5l8 4" />
+            <circle cx="12" cy="5" r="2" /><circle cx="5" cy="19" r="2" /><circle cx="19" cy="19" r="2" />
+            <path d="M12 7v4M12 11l-5 6M12 11l5 6" />
           </svg>
           生成思维导图
         </button>
         <button
           @click="emit('open-report')"
           :disabled="!canAct"
-          class="flex items-center gap-1 px-3 py-1.5 rounded-full text-[12px] font-semibold transition disabled:opacity-40"
-          style="background: linear-gradient(90deg, #a07aff, #8d5cff); color: #fff;"
+          class="flex items-center gap-1.5 px-3 py-1.5 rounded-full text-[12px] font-semibold transition-opacity disabled:opacity-40"
+          style="background: linear-gradient(90deg, #f953c6, #ff6b6b); color: #fff;"
         >
           <svg viewBox="0 0 24 24" class="w-3.5 h-3.5" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round">
             <path d="M14 3H7a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2V8z" />
